@@ -1,0 +1,32 @@
+version: "3"
+
+services:
+    # Описываем сервис app, который представляет Django приложение
+    app:
+        # Создаем Docker образ для нашего приложения из указанного Dockerfile
+        build:
+            context: . # текущая директория
+            dockerfile: Dockerfile # файл для сборки образа
+
+        # Перенаправляем порт 8000 на нашей машине на порт 8000 внутри контейнера
+        ports:
+            - 8000:8000 # порт на машине:порт в контейнере
+
+        # Связываем том с базой данных с томом в нашем приложении
+        # Это нужно, чтобы база данных, созданная в сервисе sqlite, была доступна для нашего приложения
+        volumes:
+        - ./database/data:/app/database/data
+
+        environment:
+            # разрешаем нашему python приложению писать в консоль
+            - PYTHONUNBUFFERED=1
+
+        depends_on:
+            - db
+
+    # Описываем сервис sqlite
+    db:
+        build:
+            context: ./database
+        volumes:
+            - ./database/data:/data
